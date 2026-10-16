@@ -83,12 +83,18 @@ ORDER BY TotalDeathCount DESC;
 
 -- GLOBAL NUMBERS
 
-Select SUM(new_cases) as total_cases, SUM(cast(new_deaths as int)) as total_deaths, SUM(cast(new_deaths as int))/SUM(New_Cases)*100 as DeathPercentage
-From PortfolioProject..CovidDeaths
---Where location like '%states%'
-where continent is not null 
---Group By date
-order by 1,2
+
+SELECT
+    SUM(TRY_CAST(new_cases AS DECIMAL(18,2))) AS total_cases,
+    SUM(TRY_CAST(new_deaths AS DECIMAL(18,2))) AS total_deaths,
+    ROUND(
+        100.0 * SUM(TRY_CAST(new_deaths AS DECIMAL(18,2)))
+        / NULLIF(SUM(TRY_CAST(new_cases AS DECIMAL(18,2))), 0),
+        2
+    ) AS reported_case_fatality_ratio_pct
+FROM PortfolioProject..CovidDeaths
+WHERE continent IS NOT NULL;
+
 
 
 
