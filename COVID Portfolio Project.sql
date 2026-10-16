@@ -60,14 +60,24 @@ order by TotalDeathCount desc
 
 -- BREAKING THINGS DOWN BY CONTINENT
 
--- Showing contintents with the highest death count per population
+-- Approximate total deaths by continent based on country-level cumulative counts
 
-Select continent, MAX(cast(Total_deaths as int)) as TotalDeathCount
-From PortfolioProject..CovidDeaths
---Where location like '%states%'
-Where continent is not null 
-Group by continent
-order by TotalDeathCount desc
+
+;WITH CountryDeaths AS (
+    SELECT
+        continent,
+        location,
+        MAX(CAST(total_deaths AS BIGINT)) AS CountryDeathCount
+    FROM PortfolioProject..CovidDeaths
+    WHERE continent IS NOT NULL
+    GROUP BY continent, location
+)
+SELECT
+    continent,
+    SUM(CountryDeathCount) AS TotalDeathCount
+FROM CountryDeaths
+GROUP BY continent
+ORDER BY TotalDeathCount DESC;
 
 
 
